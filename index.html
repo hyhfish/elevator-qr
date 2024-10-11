@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电梯码</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007bff">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        #qrcode {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h3>电梯码</h3>
+
+    <canvas id="qrcode"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+    <script>
+        // 注册 Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/sw1.1.js').then(function (registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function (err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+
+        // AES 加密函数
+        function getAesString(plainText, key, iv) {
+            var parsedKey = CryptoJS.enc.Utf8.parse(key);  // 将密钥解析为 UTF-8 编码
+            var parsedIv = CryptoJS.enc.Utf8.parse(iv);    // 将 IV 解析为 UTF-8 编码
+            var encrypted = CryptoJS.AES.encrypt(plainText, parsedKey, {
+                iv: parsedIv,
+                mode: CryptoJS.mode.CBC,  // CBC 模式
+                padding: CryptoJS.pad.Pkcs7  // PKCS7 填充
+            });
+            return encrypted.toString();  // 返回加密后的字符串
+        }
+
+        // 生成 QR Code 的函数
+        function generateQrCode(content) {
+            var qr = new QRious({
+                element: document.getElementById('qrcode'),
+                size: 200,  // 二维码大小
+                value: content  // 二维码内容
+            });
+        }
+
+        function getNowFormatDate() {
+            var e = new Date();
+
+            // 使用 `padStart` 方法确保单个数字前面补零
+            var year = e.getFullYear();
+            var month = (e.getMonth() + 1).toString().padStart(2, '0');
+            var day = e.getDate().toString().padStart(2, '0');
+            var hours = e.getHours().toString().padStart(2, '0');
+            var minutes = e.getMinutes().toString().padStart(2, '0');
+            var seconds = e.getSeconds().toString().padStart(2, '0');
+
+            // 拼接成所需格式的字符串 "yyyyMMddHHmmss"
+            return year + month + day + hours + minutes + seconds;
+        }
+
+        var prefix = "UM_&E&21&0&";
+        var qrCodeContent = "timestamp&7a05ca6d-4b01-11ef-a26b-08c0eb9317d4&auth&2&0&1&1&{0}&{0}$";  // 二维码内容
+        var secretKey = "Remain2017150705";  // 16 字节密钥
+        var ivKey = "201707Remain1505";  // 16 字节 IV
+
+        // 替换二维码中的动态内容
+        var currentTimestamp = getNowFormatDate();  // 获取当前时间戳
+        var networkStatus = "0";  // 假设网络状态为 "0"
+        qrCodeContent = qrCodeContent.replace("timestamp", currentTimestamp);  // 替换时间戳
+        qrCodeContent = qrCodeContent.replace("auth", networkStatus);  // 替换网络状态
+
+        // 加密二维码内容
+        var encryptedQrContent = getAesString(qrCodeContent, secretKey, ivKey);
+        console.log("Encrypted QR Content:", encryptedQrContent);  // 输出加密后的内容
+
+        // 生成二维码并显示
+        generateQrCode(prefix + encryptedQrContent);
+    </script>
+
+</body>
+
+</html>
