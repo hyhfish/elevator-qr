@@ -1,9 +1,9 @@
 const CACHE_NAME = "qr-code-cache-v1.1";
 const urlsToCache = [
-  "/",
-  "/index.html",
-  "/qr.png",
-  "/sw1.1.js",
+  "./",
+  "./index.html",
+  "./qr.png",
+  "./sw1.1.js",
   "https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js",
   "https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js",
 ];
