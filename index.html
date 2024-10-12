@@ -17,6 +17,13 @@
         #qrcode {
             margin-top: 20px;
         }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -25,6 +32,8 @@
     <h3>电梯码</h3>
 
     <canvas id="qrcode"></canvas>
+    <br>
+    <button onclick="refreshQrCode()">刷新二维码</button>
 
     <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
@@ -77,22 +86,28 @@
         }
 
         var prefix = "UM_&E&21&0&";
-        var qrCodeContent = "timestamp&7a05ca6d-4b01-11ef-a26b-08c0eb9317d4&auth&2&0&1&1&{0}&{0}$";  // 二维码内容
+        var qrCodeContentTemplate = "timestamp&7a05ca6d-4b01-11ef-a26b-08c0eb9317d4&auth&2&0&1&1&{0}&{0}$";  // 二维码内容模板
         var secretKey = "Remain2017150705";  // 16 字节密钥
         var ivKey = "201707Remain1505";  // 16 字节 IV
 
-        // 替换二维码中的动态内容
-        var currentTimestamp = getNowFormatDate();  // 获取当前时间戳
-        var networkStatus = "0";  // 假设网络状态为 "0"
-        qrCodeContent = qrCodeContent.replace("timestamp", currentTimestamp);  // 替换时间戳
-        qrCodeContent = qrCodeContent.replace("auth", networkStatus);  // 替换网络状态
+        // 刷新二维码内容的函数
+        function refreshQrCode() {
+            var qrCodeContent = qrCodeContentTemplate;  // 从模板复制内容
+            var currentTimestamp = getNowFormatDate();  // 获取当前时间戳
+            var networkStatus = "0";  // 假设网络状态为 "0"
+            qrCodeContent = qrCodeContent.replace("timestamp", currentTimestamp);  // 替换时间戳
+            qrCodeContent = qrCodeContent.replace("auth", networkStatus);  // 替换网络状态
 
-        // 加密二维码内容
-        var encryptedQrContent = getAesString(qrCodeContent, secretKey, ivKey);
-        console.log("Encrypted QR Content:", encryptedQrContent);  // 输出加密后的内容
+            // 加密二维码内容
+            var encryptedQrContent = getAesString(qrCodeContent, secretKey, ivKey);
+            console.log("Encrypted QR Content:", encryptedQrContent);  // 输出加密后的内容
 
-        // 生成二维码并显示
-        generateQrCode(prefix + encryptedQrContent);
+            // 生成二维码并显示
+            generateQrCode(prefix + encryptedQrContent);
+        }
+
+        // 页面加载时生成初始二维码
+        refreshQrCode();
     </script>
 
 </body>
