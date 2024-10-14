@@ -3,6 +3,7 @@ const urlsToCache = [
   "/elevator-qr",
   "/elevator-qr/index.html",
   "/elevator-qr/qr.png",
+  "/elevator-qr/manifest.json",
   "/elevator-qr/sw1.1.js",
   "https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js",
   "https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js",
