@@ -1,21 +1,24 @@
 const CACHE_NAME = "qr-code-cache-v1.1";
 const urlsToCache = [
-  "/elevator-qr",
-  "/elevator-qr/index.html",
-  "/elevator-qr/qr.png",
-  "/elevator-qr/manifest.json",
-  "/elevator-qr/sw1.1.js",
-  "https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js",
-  "https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js",
+    "/elevator-qr",
+    "/elevator-qr/index.html",
+    "/elevator-qr/qr.png",
+    "/elevator-qr/manifest.json",
+    "/elevator-qr/sw1.1.js",
+    "https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js",
+    "https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js",
 ];
 
 // 在安装阶段缓存应用需要的资源
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(urlsToCache);
-    })
-  );
+    event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+            return cache.addAll(urlsToCache);
+        }).then(() => {
+            // 确保 Service Worker 安装后立即激活
+            self.skipWaiting();
+        })
+    );
 });
 
 // 处理 fetch 事件，提供缓存的资源
@@ -30,7 +33,7 @@ self.addEventListener("fetch", (event) => {
 
                 const networkResponse = await fetch(event.request);
                 if (networkResponse.ok) {
-                    // 可选：将网络响应缓存起来
+                    // 将网络响应缓存起来
                     const responseToCache = networkResponse.clone();
                     caches.open('dynamic-cache').then(cache => {
                         cache.put(event.request, responseToCache);
@@ -47,6 +50,7 @@ self.addEventListener("fetch", (event) => {
         })()
     );
 });
+
 /**
  * 重试 fetch 请求
  * @param {Request} request - 要请求的资源
@@ -74,16 +78,19 @@ async function retryFetch(request, retries) {
 
 // 清理旧的缓存
 self.addEventListener("activate", (event) => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
+    const cacheWhitelist = [CACHE_NAME];
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((cacheName) => {
+                    if (cacheWhitelist.indexOf(cacheName) === -1) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
         })
-      );
-    })
-  );
+    );
+
+    // 确保 Service Worker 激活后立即控制客户端
+    self.clients.claim();
 });
