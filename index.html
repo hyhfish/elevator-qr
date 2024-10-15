@@ -49,61 +49,6 @@
             });
         }
 
-
-        function loadScript(url, callback) {
-            var script = document.createElement('script');
-            script.src = url;
-            script.async = true;
-
-            script.onload = function() {
-                callback(null, script);
-            };
-
-            script.onerror = function() {
-                callback(new Error('Failed to load script: ' + url));
-            };
-
-            document.head.appendChild(script);
-        }
-
-        // 加载 CryptoJS
-        loadScript('https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js', function(err, script) {
-            if (err) {
-                console.error(err);
-                // 重试加载
-                setTimeout(function() {
-                    loadScript('https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js', function(err, script) {
-                        if (err) {
-                            console.error('Retry failed: ' + err);
-                        } else {
-                            console.log('CryptoJS loaded successfully on retry');
-                        }
-                    });
-                }, 2000);
-            } else {
-                console.log('CryptoJS loaded successfully');
-            }
-        });
-
-        // 加载 QRious
-        loadScript('https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js', function(err, script) {
-            if (err) {
-                console.error(err);
-                // 重试加载
-                setTimeout(function() {
-                    loadScript('https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js', function(err, script) {
-                        if (err) {
-                            console.error('Retry failed: ' + err);
-                        } else {
-                            console.log('QRious loaded successfully on retry');
-                        }
-                    });
-                }, 2000);
-            } else {
-                console.log('QRious loaded successfully');
-            }
-        });
-
         // AES 加密函数
         function getAesString(plainText, key, iv) {
             var parsedKey = CryptoJS.enc.Utf8.parse(key);  // 将密钥解析为 UTF-8 编码
@@ -162,9 +107,9 @@
         }
 
         // 确保所有脚本加载完成后再执行主逻辑
-        window.onload = function() {
+        // window.onload = function() {
             refreshQrCode();
-        };
+        // };
     </script>
 
 </body>
